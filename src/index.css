@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #0f172a;
+    background-color: #f8fafc;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Scalable Text Typography Options */
+.text-size-normal {
+  font-size: 1rem;
+}
+
+.text-size-large {
+  font-size: 1.15rem;
+}
+
+.text-size-large h1 {
+  font-size: 2.5rem;
+}
+
+.text-size-large h2 {
+  font-size: 1.75rem;
+}
+
+.text-size-large p,
+.text-size-large span,
+.text-size-large button,
+.text-size-large input {
+  font-size: 1.08rem;
+}
+
+.text-size-xlarge {
+  font-size: 1.35rem;
+}
+
+.text-size-xlarge h1 {
+  font-size: 3rem;
+}
+
+.text-size-xlarge h2 {
+  font-size: 2.2rem;
+}
+
+.text-size-xlarge p,
+.text-size-xlarge span,
+.text-size-xlarge button,
+.text-size-xlarge input {
+  font-size: 1.25rem;
+}
+
+/* High Contrast Medical Accessibility Theme */
+.high-contrast-mode {
+  filter: contrast(115%);
+}
+
+.high-contrast-mode body,
+.high-contrast-mode {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+}
+
+.high-contrast-mode .bg-white {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #38bdf8 !important;
+}
+
+.high-contrast-mode .text-slate-900 {
+  color: #ffffff !important;
+}
+
+.high-contrast-mode .text-slate-600,
+.high-contrast-mode .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+.high-contrast-mode .bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+.high-contrast-mode .border-slate-200 {
+  border-color: #38bdf8 !important;
+}
+
+/* Video Mirroring for natural webcam feed */
+.mirror {
+  transform: scaleX(-1);
+}
+
+/* Voice Assistant Ripple Animation */
+@keyframes ripple {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 2s infinite ease-in-out;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MediAccess AI",
+  "description": "AI-Powered Voice-First Accessible Telemedicine Platform for patients and doctors with specialized accessibility modes.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

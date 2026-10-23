@@ -1,0 +1,1177 @@
+# MediAccess AI — AI-Powered Voice-First Accessible Telemedicine App
+
+## 1. Project Overview
+
+Build a production-ready Flutter mobile application called **MediAccess AI**.
+
+MediAccess AI is an AI-powered, voice-first accessible telemedicine platform designed to remove communication barriers between doctors and patients with different abilities.
+
+The application must support:
+
+- Normal users
+- Blind/visually impaired users
+- Deaf/hearing-impaired users
+- Speech-impaired users
+- Deaf + speech-impaired users
+
+The most important requirement is:
+
+**Almost every major feature of the application must be accessible through natural voice commands.**
+
+The app should not behave like a normal app with a microphone button added as an extra feature. It should be designed as a voice-first healthcare application.
+
+**Important additional requirement:** The very first screen must be a professional Login / Role Selection screen where users choose whether to continue as a Patient or a Doctor. Patients must be able to select their accessibility profile during registration or first-time onboarding. Doctors must have a separate login, registration, and dashboard.
+
+Do not remove or simplify any of the existing requirements to accommodate this login screen.
+
+## 2. Technology Stack
+
+Use the following technology stack.
+
+### Frontend
+- Flutter
+- Dart
+
+### AI
+- Google Gemini API
+- Natural Language Understanding
+- Intent detection
+- Entity/parameter extraction
+
+### Voice
+- Speech-to-Text (STT)
+- Text-to-Speech (TTS)
+
+### Backend
+- Firebase
+
+### Firebase Services
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Cloud Messaging
+- Firebase Storage
+
+### Accessibility / Sign Language
+- MediaPipe
+- TensorFlow
+- Flutter Camera
+
+### Video Consultation
+- WebRTC
+
+### Location
+- Google Maps / Location API
+
+### Prescription
+- Flutter PDF generation
+- Firebase Storage
+
+Do not unnecessarily introduce Node.js, Express.js, MongoDB, or other backend technologies. Keep the architecture simple and Firebase-based.
+
+Use secure Firebase-compatible backend functionality, such as Cloud Functions when required for trusted server-side operations, scheduled notifications, and protecting API credentials.
+
+## 3. First Screen — Login and Role Selection
+
+**The application must open with this screen every time an unauthenticated user launches the app.**
+
+Create a modern, professional, accessible welcome and authentication screen.
+
+### Welcome Screen Design
+
+Display:
+
+- MediAccess AI logo and application name.
+- Tagline: **"Healthcare Without Communication Barriers."**
+- Welcome message: "Welcome to MediAccess AI."
+- Supporting text: "Accessible healthcare, designed for everyone."
+- Two large, visually distinct options:
+  - **Continue as Patient**
+  - **Continue as Doctor**
+- Login and registration navigation.
+- Accessible text labels and screen-reader semantics.
+- High-contrast styling, large touch targets, and scalable typography.
+
+The interface should look like a professional healthcare product rather than a generic login form.
+
+Use a clean medical color palette, rounded cards, appropriate icons, and clear visual hierarchy.
+
+The two role options must be immediately recognizable and easy to select for users with different abilities.
+
+### Option A — Patient Login and Registration
+
+When the user selects **Continue as Patient**, open a dedicated patient authentication screen.
+
+Provide:
+
+- Email and password login.
+- New patient registration.
+- Forgot password / password reset.
+- Password visibility toggle.
+- Input validation and clear error messages.
+- Firebase Authentication integration.
+- Accessible text fields and screen-reader labels.
+- Voice-assisted navigation wherever possible.
+
+During registration, collect the patient's basic profile information, such as name and email.
+
+After successful registration, open the accessible onboarding process to configure the patient's accessibility preferences.
+
+### Patient Accessibility Profile Selection
+
+During first-time onboarding, ask the patient:
+
+**"How can we make your healthcare experience more accessible?"**
+
+Provide the following selectable options:
+
+1. Normal
+2. Visually Impaired
+3. Hearing Impaired
+4. Speech Impaired
+5. Hearing + Speech Impaired
+
+Also provide:
+
+- Preferred language.
+- Voice preference.
+- Text size.
+- High-contrast preferences.
+- Caption size.
+- Accessibility settings.
+
+Users must be able to skip optional preferences and configure them later.
+
+Save the selected accessibility preferences in the patient's Firestore profile.
+
+Apply the preferences automatically after login and allow changes through voice commands or Settings.
+
+### Patient Workflow
+
+Welcome Screen → Continue as Patient → Login / Register → Accessibility Profile for first-time users → Patient Home Screen → Global Voice Assistant.
+
+Returning patients who have already completed onboarding should proceed directly to the Patient Home Screen after authentication.
+
+### Option B — Doctor Login and Registration
+
+When the user selects **Continue as Doctor**, open a separate doctor authentication screen.
+
+Provide:
+
+- Doctor login.
+- Doctor registration.
+- Email and password authentication.
+- Password reset.
+- Input validation.
+- Accessible form controls.
+- Secure Firebase Authentication integration.
+
+During doctor registration, collect relevant professional details:
+
+- Full name.
+- Email.
+- Specialization.
+- Qualifications.
+- Years of experience.
+- Consultation fee.
+- Clinic or hospital name, if applicable.
+- Location.
+- Consultation availability.
+- Relevant professional registration and verification details.
+
+Doctor registration must not automatically grant unrestricted access to doctor functionality.
+
+Use a secure verification and approval process before a newly registered doctor can offer consultations or issue prescriptions.
+
+Store role information securely and enforce role-based authorization using Firestore Security Rules and trusted backend logic. Users must not be able to gain doctor or admin privileges by modifying client-side data.
+
+### Doctor Workflow
+
+Welcome Screen → Continue as Doctor → Login / Register → Doctor Profile Setup and Verification, if required → Doctor Dashboard.
+
+Returning, verified doctors should proceed directly to the Doctor Dashboard after authentication.
+
+### Authentication and Navigation Rules
+
+- Unauthenticated users must see the welcome/login screen.
+- Authenticated patients must access only authorized patient features.
+- Authenticated doctors must access only authorized doctor features.
+- Doctor and patient accounts must remain separated by role.
+- Provide logout functionality.
+- Support password reset.
+- Preserve the user's accessibility settings between sessions.
+- Use Firebase Authentication to manage user identity.
+- Use Firestore and trusted backend logic for roles and permissions.
+- Do not display the patient dashboard before patient authentication.
+- Do not display the doctor dashboard before doctor authentication.
+- Admin access must remain separately protected and must never be available through an ordinary patient or doctor registration flow.
+
+## 4. Core Design Principle — Voice First
+
+The application must have a Global Voice Assistant available throughout the application.
+
+The user should be able to say:
+
+- "Find a cardiologist."
+- "Find doctors near me."
+- "Show doctors under 500 rupees."
+- "Book Dr. Sharma tomorrow at 5 PM."
+- "What is my next appointment?"
+- "Cancel my appointment."
+- "Reschedule my appointment."
+- "Start my consultation."
+- "Open my prescription."
+- "Read my prescription."
+- "Open my profile."
+- "Go back."
+- "Go home."
+- "Read this page."
+- "Call my doctor."
+
+The AI should understand natural variations of the same command.
+
+For example:
+
+"Find a heart specialist."
+
+"Find a cardiologist."
+
+"I need a doctor for heart problems."
+
+All should be interpreted as:
+
+Intent: `SEARCH_DOCTOR`
+
+Specialization: `Cardiology`
+
+The voice assistant should also support appropriate navigation and accessibility commands during onboarding, login, and registration. Passwords and other sensitive authentication fields must be entered securely through appropriate input controls rather than spoken aloud by default.
+
+Voice interaction must remain optional when users prefer text, touch, or other accessible input methods.
+
+## 5. Voice Assistant Architecture
+
+Implement the following flow:
+
+User speaks  
+↓  
+Speech-to-Text  
+↓  
+Gemini AI  
+↓  
+Intent Detection  
+↓  
+Parameter Extraction  
+↓  
+Application Action  
+↓  
+Firebase/API Operation  
+↓  
+Result  
+↓  
+Text-to-Speech  
+↓  
+User hears response
+
+Create a reusable voice assistant service rather than implementing separate voice logic on every screen.
+
+Suggested structure:
+
+`VoiceAssistantService`
+
+- `startListening()`
+- `stopListening()`
+- `speechToText()`
+- `processCommand()`
+- `detectIntent()`
+- `extractParameters()`
+- `executeAction()`
+- `speakResponse()`
+
+The service must support navigation, doctor search, appointment management, prescriptions, profile settings, accessibility preferences, and other authorized application actions.
+
+It must respect authentication and role permissions. A patient must never be able to execute doctor-only actions through a voice command.
+
+## 6. AI Intent System
+
+Create predefined intents for the major application actions.
+
+Examples:
+
+- `SEARCH_DOCTOR`
+- `FILTER_DOCTOR`
+- `VIEW_DOCTOR`
+- `BOOK_APPOINTMENT`
+- `CANCEL_APPOINTMENT`
+- `RESCHEDULE_APPOINTMENT`
+- `VIEW_APPOINTMENTS`
+- `START_CONSULTATION`
+- `VIEW_PRESCRIPTION`
+- `READ_PRESCRIPTION`
+- `VIEW_NOTIFICATIONS`
+- `OPEN_PROFILE`
+- `OPEN_SETTINGS`
+- `GO_HOME`
+- `GO_BACK`
+- `EMERGENCY`
+
+Also support authentication and accessibility-related navigation intents where appropriate, without bypassing secure authentication.
+
+The AI should return structured data such as:
+
+```json
+{
+  "intent": "BOOK_APPOINTMENT",
+  "doctor": "Dr. Sharma",
+  "date": "2026-08-20",
+  "time": "17:00"
+}
+```
+
+Treat this JSON as an example of the expected structure. Runtime dates must be resolved from the current date, the user's time zone, and the user's actual request. Do not hardcode the example date.
+
+If required information is missing, the AI must ask a follow-up question.
+
+Example:
+
+User: "Book an appointment with Dr. Sharma."
+
+Assistant: "What date would you like to book the appointment?"
+
+The application must validate extracted parameters before executing actions.
+
+## 7. User Onboarding
+
+Create an accessible onboarding process for patients.
+
+Ask the user to select an accessibility profile:
+
+- Normal
+- Visually Impaired
+- Hearing Impaired
+- Speech Impaired
+- Hearing + Speech Impaired
+
+Also allow:
+
+- Language selection.
+- Voice preference.
+- Text size.
+- Accessibility settings.
+
+The selected profile should customize the application experience.
+
+The user must also be able to change the accessibility profile later through voice.
+
+Example:
+
+"Change my accessibility mode to visually impaired."
+
+Apply settings consistently across the home screen, doctor search, appointment screens, consultation room, prescriptions, notifications, and profile.
+
+The onboarding process must be presented after patient registration and before the first Patient Home Screen. Returning users must not be forced to repeat onboarding unnecessarily.
+
+## 8. Authentication
+
+Implement Firebase Authentication.
+
+Support:
+
+- Patient registration.
+- Doctor registration.
+- Login.
+- Logout.
+- Password reset.
+
+Use role-based access:
+
+- `PATIENT`
+- `DOCTOR`
+- `ADMIN`
+
+The application should show different dashboards depending on the role.
+
+Use secure role assignment and server-side verification. Admin roles must be assigned through a trusted administrative process.
+
+## 9. Patient Home Screen
+
+Create a clean and accessible patient dashboard.
+
+Main sections:
+
+- Voice Assistant.
+- Find Doctor.
+- Appointments.
+- Consultation.
+- Prescriptions.
+- Notifications.
+- Profile.
+- Accessibility Settings.
+- Emergency.
+
+The microphone/voice assistant should be visually prominent.
+
+Display:
+
+"How can I help you?"
+
+with a large microphone button.
+
+However, voice commands should also work from other major screens.
+
+The home screen must reflect the patient's selected accessibility profile.
+
+## 10. Doctor Search
+
+Allow users to search doctors through voice, text, or UI.
+
+Voice examples:
+
+- "Find a cardiologist."
+- "Find a dermatologist near me."
+- "Show doctors below 500 rupees."
+- "Show female doctors."
+- "Find doctors available tomorrow."
+
+Support filters:
+
+- Specialization.
+- Consultation fee.
+- Gender.
+- Location.
+- Availability.
+- Rating.
+
+Use Google Maps/Location API for location-based searches.
+
+Display:
+
+- Doctor name.
+- Specialization.
+- Experience.
+- Consultation fee.
+- Rating.
+- Location.
+- Availability.
+- Book Appointment button.
+
+Only show accurate doctor profiles and actual availability information. Provide clear fallback messages if location permissions are unavailable.
+
+## 11. Appointment Booking
+
+Allow completely voice-driven appointment booking.
+
+Example:
+
+User: "Book Dr. Sharma tomorrow at 5 PM."
+
+The system should:
+
+1. Identify the doctor.
+2. Resolve the requested date and time.
+3. Check the doctor's availability.
+4. Confirm the date and time.
+5. Ask for confirmation.
+6. Create the appointment in Firestore after confirmation.
+7. Notify the patient.
+8. Notify the doctor.
+
+Confirmation:
+
+"Dr. Sharma is available tomorrow at 5 PM. Should I book the appointment?"
+
+User: "Yes."
+
+Then:
+
+"Your appointment has been successfully booked."
+
+Prevent duplicate bookings and concurrent scheduling conflicts using trusted backend validation.
+
+Never report an appointment as booked until the booking operation succeeds.
+
+## 12. Appointment Management
+
+Users must be able to perform all major appointment actions through voice.
+
+Commands:
+
+- "Show my appointments."
+- "When is my next appointment?"
+- "Cancel my appointment."
+- "Reschedule my appointment."
+- "Show today's appointments."
+
+Provide both voice and visual interfaces.
+
+Require explicit confirmation before cancellation or rescheduling.
+
+Only allow users to view and modify appointments they are authorized to access.
+
+## 13. Appointment Reminder
+
+Use Firebase Cloud Messaging.
+
+Send a notification 15 minutes before the consultation to:
+
+- Patient.
+- Doctor.
+
+Example:
+
+Patient: "Your consultation with Dr. Sharma starts in 15 minutes."
+
+Doctor: "You have a consultation with your patient in 15 minutes."
+
+Implement reminders through a reliable scheduled backend process. Do not depend solely on the application remaining open.
+
+Handle notification permissions, token updates, appointment changes, cancellations, and time-zone differences.
+
+## 14. Online Consultation
+
+Implement doctor-patient online consultation using WebRTC.
+
+Support:
+
+- Video.
+- Audio.
+- Mute/unmute.
+- Camera on/off.
+- End call.
+- Accessible communication.
+
+During consultation provide:
+
+- Speech-to-Text.
+- Text communication.
+- Text-to-Speech.
+- Sign-language communication.
+
+The consultation interface should be simple and accessible.
+
+Use secure signaling, appropriate WebRTC connection configuration, and authenticated consultation access. Do not present a simulated video interface as a functional WebRTC connection.
+
+## 15. Deaf / Hearing-Impaired Mode
+
+Doctor speech:
+
+Doctor speaks  
+↓  
+Speech-to-Text  
+↓  
+Live text  
+↓  
+Patient reads
+
+Display live transcription clearly.
+
+Allow the patient to increase:
+
+- Text size.
+- Contrast.
+- Caption size.
+
+The patient should also be able to respond using text or sign language.
+
+Provide visual indicators for important events such as incoming calls, microphone status, and consultation alerts.
+
+## 16. Speech-Impaired Mode
+
+Provide multiple communication options.
+
+### Text → Speech
+
+Patient enters text  
+↓  
+Text-to-Speech  
+↓  
+Doctor hears message
+
+### Sign → Text
+
+Camera  
+↓  
+MediaPipe  
+↓  
+Gesture Detection  
+↓  
+TensorFlow  
+↓  
+Recognized Sign  
+↓  
+Text
+
+Then optionally:
+
+Text  
+↓  
+TTS  
+↓  
+Doctor hears
+
+Allow quick access to common communication phrases, such as describing pain, requesting repetition, asking for help, or communicating discomfort.
+
+## 17. Sign Language Recognition
+
+Implement a camera-based sign-language recognition module.
+
+Use:
+
+- Flutter Camera.
+- MediaPipe.
+- TensorFlow.
+
+Pipeline:
+
+Camera  
+↓  
+Video Frames  
+↓  
+MediaPipe Hand Detection  
+↓  
+Gesture/Sign Recognition  
+↓  
+TensorFlow Model  
+↓  
+Text
+
+Display recognized text in real time.
+
+Provide a clear indication of:
+
+- Camera active.
+- Recognized sign.
+- Confidence score.
+- Generated text.
+
+Design the architecture so the trained TensorFlow model can be replaced or improved later.
+
+Use a compatible, trained model for the selected sign language. Do not claim that arbitrary sign language can be recognized unless the corresponding model supports it.
+
+If the trained model is unavailable, provide a clearly labeled integration-ready module and a usable text-to-speech communication fallback.
+
+## 18. Prescription Management
+
+After consultation, the doctor should be able to create a digital prescription.
+
+Prescription fields:
+
+- Patient name.
+- Doctor name.
+- Date.
+- Diagnosis.
+- Medicine.
+- Dosage.
+- Frequency.
+- Duration.
+- Instructions.
+- Follow-up date.
+
+Generate the prescription as a PDF.
+
+Save the PDF in Firebase Storage.
+
+Store prescription metadata in Firestore.
+
+Only authorized doctors should be able to create prescriptions, and patients should only be able to access their own prescriptions.
+
+Use secure document access and validate prescription data before saving.
+
+## 19. Prescription Voice Reading
+
+When the user says:
+
+"Read my prescription."
+
+The application should retrieve the latest prescription and use TTS.
+
+Example:
+
+"Your prescription contains Paracetamol, one tablet twice daily for three days."
+
+Allow the user to say:
+
+- "Next medicine."
+- "Repeat that."
+- "Stop reading."
+
+Read the stored prescription accurately without changing medicine names, dosages, frequencies, or durations.
+
+Do not invent missing prescription information or provide unauthorized medical recommendations.
+
+## 20. Notifications
+
+Create a notification system for:
+
+- Appointment confirmation.
+- Appointment cancellation.
+- Appointment rescheduling.
+- 15-minute reminder.
+- Consultation availability.
+- New prescription.
+- Doctor messages.
+
+Use Firebase Cloud Messaging.
+
+Notifications should also be accessible through voice:
+
+"Read my notifications."
+
+Provide accessible visual notifications and spoken feedback according to the user's accessibility settings.
+
+## 21. Emergency Feature
+
+Create an emergency section that can be triggered through voice.
+
+Example:
+
+"I need emergency help."
+
+The application should show an emergency confirmation screen and provide configured emergency actions.
+
+Do not automatically trigger emergency actions from ambiguous speech.
+
+Require confirmation before making an emergency call or sending an emergency alert.
+
+If the user has enabled visually impaired mode, make the confirmation process accessible through speech and other nonvisual feedback.
+
+Use verified emergency contact details and request location permission where necessary. Clearly indicate whether an emergency call or alert has actually been initiated.
+
+## 22. Profile and Settings
+
+Allow voice control for:
+
+- View profile.
+- Edit profile.
+- Change language.
+- Change accessibility mode.
+- Change voice settings.
+- Change text size.
+- Change notification settings.
+- Logout.
+
+Examples:
+
+- "Change language."
+- "Increase text size."
+- "Change my accessibility mode."
+
+Allow patients and doctors to manage their own permitted profile settings.
+
+## 23. Accessibility Requirements
+
+The application must follow accessibility-first design.
+
+Implement:
+
+- Large touch targets.
+- High contrast.
+- Scalable text.
+- Screen-reader-friendly labels.
+- Semantic Flutter widgets.
+- Voice navigation.
+- TTS feedback.
+- Captions.
+- Minimal complex UI.
+- Clear confirmation messages.
+- Avoid relying only on color to communicate information.
+
+Every important action should have a voice alternative.
+
+The login screen, role selection, authentication forms, onboarding, dashboards, consultation screens, and settings must follow the same accessibility standards.
+
+Ensure that patients can complete authentication and accessibility setup using suitable combinations of voice, screen reader, text, and touch.
+
+Do not make voice interaction the only way to access essential features.
+
+## 24. Firebase Firestore Structure
+
+Create a clean Firestore structure:
+
+```text
+users/
+doctors/
+appointments/
+prescriptions/
+notifications/
+consultations/
+accessibility_profiles/
+```
+
+Example user:
+
+```json
+{
+  "name": "User Name",
+  "email": "user@example.com",
+  "role": "PATIENT",
+  "accessibilityMode": "visually_impaired",
+  "language": "English"
+}
+```
+
+Use consistent field names and document relationships throughout the application.
+
+Recommended data responsibilities:
+
+- `users/`: authenticated user profile and role reference.
+- `doctors/`: doctor professional profile, specialization, fees, availability, and verification status.
+- `appointments/`: patient, doctor, date, time, status, and notification metadata.
+- `prescriptions/`: patient, doctor, consultation reference, prescription fields, and PDF storage reference.
+- `notifications/`: recipient, message, type, timestamp, and read status.
+- `consultations/`: appointment reference, participants, status, and secure connection metadata.
+- `accessibility_profiles/`: accessibility preferences associated with the authenticated user.
+
+Use Firebase Authentication UIDs for identity references and Firestore Security Rules to protect sensitive data.
+
+Never store passwords in Firestore. Avoid exposing unnecessary patient information through notifications or public doctor records.
+
+## 25. Suggested Flutter Project Structure
+
+Use a clean architecture:
+
+```text
+lib/
+│
+├── main.dart
+│
+├── screens/
+│   ├── splash/
+│   ├── welcome/
+│   ├── onboarding/
+│   ├── auth/
+│   │   ├── role_selection_screen.dart
+│   │   ├── patient_login_screen.dart
+│   │   ├── patient_register_screen.dart
+│   │   ├── doctor_login_screen.dart
+│   │   ├── doctor_register_screen.dart
+│   │   └── forgot_password_screen.dart
+│   ├── patient/
+│   ├── doctor/
+│   ├── doctors/
+│   ├── appointments/
+│   ├── consultation/
+│   ├── prescriptions/
+│   ├── notifications/
+│   └── profile/
+│
+├── services/
+│   ├── voice_service.dart
+│   ├── ai_service.dart
+│   ├── firebase_service.dart
+│   ├── auth_service.dart
+│   ├── notification_service.dart
+│   ├── location_service.dart
+│   ├── consultation_service.dart
+│   └── prescription_service.dart
+│
+├── models/
+│   ├── user.dart
+│   ├── doctor.dart
+│   ├── appointment.dart
+│   └── prescription.dart
+│
+├── widgets/
+│   ├── voice_assistant.dart
+│   ├── voice_button.dart
+│   ├── doctor_card.dart
+│   ├── appointment_card.dart
+│   └── accessibility_widgets.dart
+│
+└── utils/
+    ├── constants.dart
+    └── accessibility.dart
+```
+
+You may add supporting files when necessary, but do not unnecessarily complicate the architecture.
+
+## 26. UI/UX Design
+
+Create a modern healthcare UI.
+
+Design principles:
+
+- Clean.
+- Minimal.
+- Accessible.
+- Professional.
+- Friendly.
+- Large readable typography.
+- Rounded cards.
+- Clear icons.
+- Large voice interaction area.
+
+### Initial Login Screen
+
+The first screen should present the MediAccess AI identity and two clear role selection cards.
+
+Example layout:
+
+```text
+┌────────────────────────────────┐
+│                                │
+│         MediAccess AI          │
+│                                │
+│ Healthcare Without             │
+│ Communication Barriers         │
+│                                │
+│ Welcome!                       │
+│ How would you like to continue?│
+│                                │
+│ ┌────────────────────────────┐ │
+│ │ 👤  Continue as Patient    │ │
+│ │     Accessible Healthcare  │ │
+│ └────────────────────────────┘ │
+│                                │
+│ ┌────────────────────────────┐ │
+│ │ 🩺  Continue as Doctor     │ │
+│ │     Professional Portal    │ │
+│ └────────────────────────────┘ │
+│                                │
+│       Secure Authentication    │
+└────────────────────────────────┘
+```
+
+Use this as a layout reference rather than a rigid design.
+
+### Patient Home Screen
+
+Example:
+
+```text
+┌──────────────────────────────┐
+│       MediAccess AI          │
+│                              │
+│   Good Morning, User         │
+│                              │
+│       How can I help?        │
+│                              │
+│          🎤                  │
+│      TAP TO SPEAK            │
+│                              │
+│ ┌────────┐ ┌──────────────┐ │
+│ │ Doctors│ │ Appointments │ │
+│ └────────┘ └──────────────┘ │
+│                              │
+│ ┌────────────┐ ┌──────────┐ │
+│ │Consultation│ │Prescription│
+│ └────────────┘ └──────────┘ │
+│                              │
+└──────────────────────────────┘
+```
+
+The voice assistant must remain the primary interaction mechanism.
+
+The doctor dashboard should be separately designed around appointments, consultation management, patient communication, and prescription creation.
+
+## 27. Important Voice Interaction Rule
+
+Do NOT force users to memorize commands.
+
+The AI should understand natural language.
+
+For example, all of these should work:
+
+"Find me a heart doctor."
+
+"I need a cardiologist."
+
+"Can you find a doctor for heart problems?"
+
+"Show me cardiologists."
+
+All should trigger doctor search.
+
+The system should provide confirmation before important actions such as:
+
+- Booking appointment.
+- Cancelling appointment.
+- Rescheduling.
+- Sending a message.
+- Emergency action.
+
+The assistant must understand context and ask follow-up questions when information is incomplete.
+
+It must never bypass authentication, role permissions, or confirmation requirements.
+
+## 28. Error Handling
+
+If speech is unclear:
+
+"I didn't understand that. Could you please repeat?"
+
+If information is missing:
+
+"Which doctor would you like to book?"
+
+If no doctor is found:
+
+"I couldn't find a cardiologist matching those conditions. Would you like me to search nearby doctors?"
+
+If the microphone permission is disabled:
+
+"Microphone permission is required for voice interaction. Please enable it in settings."
+
+Always provide a fallback text/UI interaction.
+
+Additional authentication errors should include:
+
+- Invalid email or password.
+- Account not found.
+- Email already registered.
+- Password reset instructions.
+- Network connection failure.
+- Doctor verification pending.
+- Unauthorized access.
+
+Display helpful messages without exposing sensitive authentication or backend information.
+
+## 29. Security
+
+Implement:
+
+- Firebase Authentication.
+- Firestore Security Rules.
+- Role-based access.
+- Secure API key handling.
+- HTTPS.
+- Input validation.
+- Protected patient/doctor data.
+
+Never expose API keys directly in the Flutter source code.
+
+Use trusted backend functionality for protected operations, Gemini API calls where credentials must remain private, appointment conflict validation, role-sensitive operations, and scheduled reminders.
+
+Apply least-privilege access to Firebase Storage and Firestore.
+
+Protect consultation and prescription data from unauthorized access.
+
+Use secure authentication state handling and validate authorization on the backend rather than relying only on the UI.
+
+## 30. Development Priority
+
+Build the application in phases.
+
+### Phase 1 — Core App
+
+- Flutter setup.
+- Firebase.
+- Welcome and role selection screen.
+- Patient login and registration.
+- Doctor login and registration.
+- Password reset.
+- Patient/Doctor roles.
+- Secure authentication.
+- Patient accessibility onboarding.
+- Basic patient and doctor dashboards.
+
+### Phase 2 — Voice
+
+- STT.
+- TTS.
+- Gemini integration.
+- Intent detection.
+- Voice navigation.
+
+### Phase 3 — Healthcare
+
+- Doctor search.
+- Appointment booking.
+- Appointment management.
+- Notifications.
+
+### Phase 4 — Accessibility
+
+- Deaf mode.
+- Speech-impaired mode.
+- Live transcription.
+- Text-to-speech communication.
+
+### Phase 5 — AI Accessibility
+
+- Camera.
+- MediaPipe.
+- TensorFlow.
+- Sign-language recognition.
+
+### Phase 6 — Consultation
+
+- WebRTC.
+- Accessible video/audio consultation.
+
+### Phase 7 — Prescription
+
+- Prescription creation.
+- PDF generation.
+- Firebase Storage.
+- Voice prescription reading.
+
+## 31. Final Requirement
+
+Build MediAccess AI as a functional Flutter mobile application, not merely a static UI prototype.
+
+Prioritize working functionality.
+
+The final application should demonstrate this complete workflow:
+
+```text
+App Launch
+     ↓
+Welcome / Role Selection
+     ↓
+Patient or Doctor
+     ↓
+Firebase Authentication
+     ↓
+Patient Accessibility Onboarding
+     ↓
+Role-Based Dashboard
+     ↓
+Voice Home
+     ↓
+"Find a cardiologist"
+     ↓
+AI understands command
+     ↓
+Doctor Search
+     ↓
+"Book Dr. Sharma tomorrow at 5 PM"
+     ↓
+Availability Check
+     ↓
+Voice Confirmation
+     ↓
+Appointment Booked
+     ↓
+15-Minute Reminder
+     ↓
+Start Consultation
+     ↓
+WebRTC Consultation
+     ↓
+STT / TTS / Sign Communication
+     ↓
+Doctor Creates Prescription
+     ↓
+PDF Generated
+     ↓
+Patient receives notification
+     ↓
+"Read my prescription"
+     ↓
+TTS reads prescription aloud
+```
+
+The login, registration, accessibility onboarding, and role-based dashboards must be functional and connected to Firebase, not just visual screens.
+
+Implement each major feature with real functionality where the required services, credentials, and trained models are available. If an external integration is not configured, provide a clearly identified integration point and a usable fallback instead of falsely claiming the feature is operational.
+
+## 32. Final Product Goal
+
+The final app should communicate the following core idea:
+
+**MediAccess AI is a voice-first, AI-powered accessible telemedicine platform that allows people with different abilities to independently search for doctors, book and manage appointments, communicate during consultations, access prescriptions, and navigate healthcare services using voice, text, and sign language.**
+
+The application must begin with a secure, accessible Patient/Doctor role selection and authentication experience, followed by the appropriate dashboard and patient accessibility configuration.
+
+Do not add unnecessary features that are not related to this core objective.
+
+Focus on making the voice-first healthcare experience, secure authentication, accessibility, AI intent understanding, appointment workflow, consultation, and sign-language communication functional and polished.
